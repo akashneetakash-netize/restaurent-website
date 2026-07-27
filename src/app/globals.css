@@ -1,0 +1,255 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ========== GOOGLE FONTS ========== */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --font-serif: 'Cormorant Garamond', serif;
+  --font-sans: 'Inter', sans-serif;
+
+  /* Haven Luxury Colors */
+  --haven-bg: #0A0A0A;
+  --haven-surface: #111111;
+  --haven-card: #161616;
+  --haven-border: #262626;
+  --haven-gold: #C9A227;
+  --haven-gold-light: #D4AF37;
+  --haven-text: #F5F0E8;
+  --haven-text-muted: #A1A1AA;
+}
+
+/* ========== BASE ========== */
+body {
+  background-color: var(--haven-bg);
+  color: var(--haven-text);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, .font-serif {
+  font-family: var(--font-serif);
+}
+
+/* ========== CUSTOM SCROLLBAR ========== */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0A0A0A;
+}
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--haven-gold);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+}
+
+@supports (scrollbar-width: none) {
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+}
+
+/* ========== 3D UTILITIES ========== */
+.perspective-1000 {
+  perspective: 1000px;
+}
+.perspective-1200 {
+  perspective: 1200px;
+}
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+.backface-hidden {
+  backface-visibility: hidden;
+}
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+/* ========== CORE ANIMATIONS ========== */
+
+/* Fade In Up */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-in-up {
+  animation: fadeInUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Fly In (for menu cards) */
+@keyframes flyIn {
+  0% {
+    opacity: 0;
+    transform: translateY(50px) scale(0.94);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.animate-fly-in {
+  animation: flyIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Soft Float */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* Gold Glow Pulse */
+@keyframes goldGlow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(201, 162, 39, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(201, 162, 39, 0.4);
+  }
+}
+.animate-gold-glow {
+  animation: goldGlow 3s ease-in-out infinite;
+}
+
+/* ========== 3D CARD ANIMATIONS ========== */
+@keyframes cardFloat {
+  0%, 100% {
+    transform: perspective(900px) rotateX(0deg) rotateY(0deg);
+  }
+  25% {
+    transform: perspective(900px) rotateX(2deg) rotateY(-4deg);
+  }
+  75% {
+    transform: perspective(900px) rotateX(-2deg) rotateY(4deg);
+  }
+}
+.animate-card-float {
+  animation: cardFloat 7s ease-in-out infinite;
+}
+
+/* ========== PAYMENT ANIMATIONS ========== */
+
+/* Shimmer */
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(201, 162, 39, 0.25) 50%,
+    transparent 100%
+  );
+  background-size: 200% auto;
+  animation: shimmer 2s linear infinite;
+}
+
+/* Timer Urgency */
+@keyframes timerPulse {
+  0%, 100% { color: #C9A227; }
+  50% { color: #ff6b35; text-shadow: 0 0 12px rgba(255, 107, 53, 0.5); }
+}
+.animate-timer-urgency {
+  animation: timerPulse 1s ease-in-out infinite;
+}
+
+/* Success Burst */
+@keyframes burst {
+  0% { transform: scale(0.4); opacity: 0; }
+  60% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.animate-burst {
+  animation: burst 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* QR Scan Line */
+@keyframes scanLine {
+  0% { top: 10%; opacity: 0.9; }
+  50% { top: 85%; opacity: 0.6; }
+  100% { top: 10%; opacity: 0.9; }
+}
+.animate-scan-line {
+  animation: scanLine 2.4s ease-in-out infinite;
+}
+
+/* Step Pulse (Order Tracker) */
+@keyframes stepPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(201, 162, 39, 0.5); }
+  50% { box-shadow: 0 0 0 10px rgba(201, 162, 39, 0); }
+}
+.animate-step-pulse {
+  animation: stepPulse 1.6s ease-in-out infinite;
+}
+
+/* ========== MARQUEE ========== */
+@keyframes marqueeLeft {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+@keyframes marqueeRight {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+.animate-marquee-left {
+  animation: marqueeLeft 35s linear infinite;
+}
+.animate-marquee-right {
+  animation: marqueeRight 35s linear infinite;
+}
+.animate-marquee-left:hover,
+.animate-marquee-right:hover {
+  animation-play-state: paused;
+}
+
+/* ========== STAGGER DELAYS ========== */
+.delay-75  { animation-delay: 75ms; }
+.delay-100 { animation-delay: 100ms; }
+.delay-150 { animation-delay: 150ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-500 { animation-delay: 500ms; }
+
+/* ========== UTILITY CLASSES ========== */
+.bg-gold-gradient {
+  background: linear-gradient(135deg, #C9A227, #D4AF37, #E8D5A3);
+}
+
+.text-gold {
+  color: var(--haven-gold);
+}
+
+.border-gold {
+  border-color: rgba(201, 162, 39, 0.4);
+}
+
+.shadow-gold {
+  box-shadow: 0 10px 30px -5px rgba(201, 162, 39, 0.25);
+}
+
+.shadow-gold-lg {
+  box-shadow: 0 20px 40px -10px rgba(201, 162, 39, 0.35);
+}
