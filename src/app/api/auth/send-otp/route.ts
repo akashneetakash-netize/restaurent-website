@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import sgMail from '@sendgrid/mail';
 import { redis } from '@/lib/redis';
 
-sgMail.setApiKey(process.env.SENDGRID_API_KEY || '');
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
   try {
@@ -16,7 +17,7 @@ export async function POST(req: Request) {
     const rateKey = `otp_rate:${email}`;
     const attempts = await redis.incr(rateKey);
     if (attempts === 1) {
-      await redis.expire(rateKey, 3600); // 1 hour
+      await redis.expire(rateKey, 3600);
     }
     if (attempts > 5) {
       return NextResponse.json(
@@ -31,6 +32,8 @@ export async function POST(req: Request) {
     await redis.set(`otp:${email}`, otp, { ex: 600 });
 
     if (process.env.SENDGRID_API_KEY) {
+      // Always initialize inside handler — never at module level
+      sgMail.setApiKey(process.env.SENDGRID_API_KEY);
       await sgMail.send({
         to: email,
         from: process.env.SENDGRID_FROM_EMAIL || 'noreply@havensanctuary.com',
@@ -48,7 +51,7 @@ export async function POST(req: Request) {
         `,
       });
     } else {
-      console.log('SENDGRID_API_KEY missing, OTP is:', otp);
+      console.log('[DEV] SENDGRID_API_KEY missing, OTP is:', otp);
     }
 
     return NextResponse.json({ success: true, message: 'OTP sent successfully' });

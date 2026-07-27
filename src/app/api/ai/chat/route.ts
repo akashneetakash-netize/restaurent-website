@@ -1,9 +1,8 @@
 import Groq from 'groq-sdk';
 import { NextResponse } from 'next/server';
 
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
-});
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
   try {
@@ -16,9 +15,12 @@ export async function POST(req: Request) {
 
     if (!process.env.GROQ_API_KEY) {
       return NextResponse.json({
-        reply: 'GROQ_API_KEY is missing. Please add it in .env.local and restart the server.',
+        reply: 'AI service is not configured. Please contact the restaurant staff.',
       });
     }
+
+    // Initialize Groq client inside handler (not at module level)
+    const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
     // Strong system prompt using live menu data
     const systemPrompt = `
@@ -54,7 +56,7 @@ ${JSON.stringify(context, null, 2)}
 
     const completion = await groq.chat.completions.create({
       messages,
-      model: 'llama-3.3-70b-versatile', // Best free model on Groq
+      model: 'llama-3.3-70b-versatile',
       temperature: 0.7,
       max_tokens: 800,
     });
