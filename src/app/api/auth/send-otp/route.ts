@@ -31,27 +31,35 @@ export async function POST(req: Request) {
     // Store OTP for 10 minutes
     await redis.set(`otp:${email}`, otp, { ex: 600 });
 
-    if (process.env.SENDGRID_API_KEY) {
-      // Always initialize inside handler — never at module level
-      sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-      await sgMail.send({
-        to: email,
-        from: process.env.SENDGRID_FROM_EMAIL || 'noreply@havensanctuary.com',
-        subject: 'Your Haven Sanctuary OTP',
-        html: `
-          <div style="font-family: Georgia, serif; max-width: 520px; margin: 0 auto; background: #0f0f0f; color: #f5f5f5; padding: 40px; border-radius: 16px;">
-            <h2 style="color: #c9a227; letter-spacing: 2px; margin-bottom: 8px;">HAVEN SANCTUARY</h2>
-            <p style="color: #aaa; font-size: 14px;">Bandra West, Mumbai</p>
-            <hr style="border-color: #333; margin: 24px 0;" />
-            <p>Your One-Time Password is:</p>
-            <h1 style="letter-spacing: 12px; font-size: 36px; color: #c9a227; margin: 16px 0;">${otp}</h1>
-            <p style="color: #aaa; font-size: 13px;">Valid for <strong>10 minutes</strong>. Do not share this code.</p>
-            <p style="color: #666; font-size: 12px; margin-top: 32px;">If you did not request this, please ignore this email.</p>
-          </div>
-        `,
-      });
+    const hasSendGrid =
+      process.env.SENDGRID_API_KEY &&
+      !process.env.SENDGRID_API_KEY.includes('your_sendgrid');
+
+    if (hasSendGrid) {
+      try {
+        sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
+        await sgMail.send({
+          to: email,
+          from: process.env.SENDGRID_FROM_EMAIL || 'noreply@havensanctuary.com',
+          subject: 'Your Haven Sanctuary OTP',
+          html: `
+            <div style="font-family: Georgia, serif; max-width: 520px; margin: 0 auto; background: #0f0f0f; color: #f5f5f5; padding: 40px; border-radius: 16px;">
+              <h2 style="color: #c9a227; letter-spacing: 2px; margin-bottom: 8px;">HAVEN SANCTUARY</h2>
+              <p style="color: #aaa; font-size: 14px;">Bandra West, Mumbai</p>
+              <hr style="border-color: #333; margin: 24px 0;" />
+              <p>Your One-Time Password is:</p>
+              <h1 style="letter-spacing: 12px; font-size: 36px; color: #c9a227; margin: 16px 0;">${otp}</h1>
+              <p style="color: #aaa; font-size: 13px;">Valid for <strong>10 minutes</strong>. Do not share this code.</p>
+              <p style="color: #666; font-size: 12px; margin-top: 32px;">If you did not request this, please ignore this email.</p>
+            </div>
+          `,
+        });
+      } catch (sgError) {
+        console.warn('SendGrid dispatch warning (fallback to console):', sgError);
+        console.log(`[DEMO MODE] OTP for ${email} is: ${otp}`);
+      }
     } else {
-      console.log('[DEV] SENDGRID_API_KEY missing, OTP is:', otp);
+      console.log(`[DEMO MODE] SENDGRID_API_KEY missing or placeholder. OTP for ${email} is: ${otp}`);
     }
 
     return NextResponse.json({ success: true, message: 'OTP sent successfully' });
