@@ -1,4 +1,3 @@
-import Groq from 'groq-sdk';
 import { NextResponse } from 'next/server';
 
 export const runtime = 'nodejs';
@@ -19,10 +18,10 @@ export async function POST(req: Request) {
       });
     }
 
-    // Initialize Groq client inside handler (not at module level)
+    // Dynamic import prevents SDK from loading at build time
+    const { default: Groq } = await import('groq-sdk');
     const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-    // Strong system prompt using live menu data
     const systemPrompt = `
 You are the official AI Sommelier & Operations Assistant of Haven Sanctuary — a luxury Indian fine-dining restaurant in Bandra West, Mumbai.
 
@@ -38,20 +37,17 @@ LIVE CONTEXT:
 ${JSON.stringify(context, null, 2)}
 `;
 
-    // Convert history to Groq format
-    const messages: any[] = [
+    const messages: { role: 'system' | 'user' | 'assistant'; content: string }[] = [
       { role: 'system', content: systemPrompt },
     ];
 
-    // Add previous conversation
-    history.forEach((msg: any) => {
+    history.forEach((msg: { sender: string; text: string }) => {
       messages.push({
         role: msg.sender === 'user' ? 'user' : 'assistant',
         content: msg.text,
       });
     });
 
-    // Add current user message
     messages.push({ role: 'user', content: prompt });
 
     const completion = await groq.chat.completions.create({
@@ -61,10 +57,11 @@ ${JSON.stringify(context, null, 2)}
       max_tokens: 800,
     });
 
-    const reply = completion.choices[0]?.message?.content || 'I am here to help you.';
+    const reply =
+      completion.choices[0]?.message?.content || 'I am here to help you.';
 
     return NextResponse.json({ reply });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Groq Error →', error);
     return NextResponse.json({
       reply: 'I apologize. Our systems are momentarily busy. Please try again in a moment.',
